@@ -8,29 +8,13 @@ const REDIS_PORT = process.env.PORT || 6379;
 const client = redis.createClient({host : 'dockersite.me', port : 6379})
 const app = express();
 
-async function getRepository(req,res, next){
-    try{
-        const { username } = req.params;
-        
-        const GitResponse = await fetch(`https://api.github.com/users/${username}`);
+app.get("/", (req, res)=>{
+    client.publish("notification", "My New Notication", function(){
 
-        const data = await GitResponse.json();
-
-        const repo = data.public_repos;
-
-        client.set(username , repo , (error, reply)=>{
-            console.log("getRepository -> reply", reply)
-            console.log("getRepository -> error", error)
-        });
-        res.send("Public URL =  " + repo);
-    }
-    catch(err){
-        console.error(err);
-        res.sendStatus(500);
-    }
-}
-
-app.get("/:username", getRepository)
+        console.log("Message Published")
+    });
+    res.send("sent")
+})
 
 app.listen(5000, () => { 
     console.log(`NodeJs is working on ${PORT}`)
